@@ -50,7 +50,7 @@ class CppLanguage extends HyperLanguage {
                     'asm', 'auto', 'break', 'case', 'catch', 'class', 'const',
                     'const_cast', 'continue', 'default', 'do', 'dynamic_cast',
                     'else', 'enum', 'explicit', 'export', 'extern', 'for',
-                    'firend', 'goto', 'if', 'inline', 'mutable', 'namespace',
+                    'friend', 'goto', 'if', 'inline', 'mutable', 'namespace',
                     'operator', 'private', 'protected', 'public', 'register',
                     'reinterpret_cast', 'return', 'sizeof', 'static',
                     'static_cast', 'struct', 'switch', 'template', 'throw',
