@@ -333,7 +333,7 @@ Vector<hb_feature_t> FontCache::computeFeatures(const FontDescription& fontDescr
     return features;
 }
 
-std::unique_ptr<FontPlatformData> FontCache::createFontPlatformData(const FontDescription& fontDescription, const AtomString& family, const FontCreationContext& fontCreationContext)
+std::unique_ptr<FontPlatformData> FontCache::createFontPlatformData(const FontDescription& fontDescription, const AtomString& family, const FontCreationContext& fontCreationContext, OptionSet<FontLookupOptions> options)
 {
     auto familyName = getFamilyNameStringFromFamily(family);
     auto typeface = fontManager().matchFamilyStyle(familyName.utf8().data(), skiaFontStyle(fontDescription));

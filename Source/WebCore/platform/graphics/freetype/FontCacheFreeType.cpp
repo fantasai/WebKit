@@ -92,7 +92,7 @@ bool FontCache::configurePatternForFontDescription(FcPattern* pattern, const Fon
     return true;
 }
 
-static void getFontPropertiesFromPattern(FcPattern* pattern, const FontDescription& fontDescription, bool& fixedWidth, bool& syntheticBold, bool& syntheticOblique)
+static void getFontPropertiesFromPattern(FcPattern* pattern, const FontDescription& fontDescription, OptionSet<FontLookupOptions> options, bool& fixedWidth, bool& syntheticBold, bool& syntheticOblique)
 {
     fixedWidth = false;
     int spacing;
@@ -100,8 +100,8 @@ static void getFontPropertiesFromPattern(FcPattern* pattern, const FontDescripti
         fixedWidth = true;
 
     syntheticBold = false;
-    bool descriptionAllowsSyntheticBold = fontDescription.hasAutoFontSynthesisWeight();
-    if (descriptionAllowsSyntheticBold && isFontWeightBold(fontDescription.weight())) {
+    bool allowSyntheticBold = fontDescription.hasAutoFontSynthesisWeight() && !options.contains(FontLookupOptions::DisallowSyntheticBold);
+    if (allowSyntheticBold && isFontWeightBold(fontDescription.weight())) {
         // The FC_EMBOLDEN property instructs us to fake the boldness of the font.
         FcBool fontConfigEmbolden = FcFalse;
         if (FcPatternGetBool(pattern, FC_EMBOLDEN, 0, &fontConfigEmbolden) == FcResultMatch)
@@ -116,8 +116,8 @@ static void getFontPropertiesFromPattern(FcPattern* pattern, const FontDescripti
     // We requested an italic font, but Fontconfig gave us one that was neither oblique nor italic.
     syntheticOblique = false;
     int actualFontSlant;
-    bool descriptionAllowsSyntheticOblique = fontDescription.hasAutoFontSynthesisStyle();
-    if (descriptionAllowsSyntheticOblique && fontDescription.italic()
+    bool allowSyntheticOblique = fontDescription.hasAutoFontSynthesisStyle() && !options.contains(FontLookupOptions::DisallowSyntheticOblique);
+    if (allowSyntheticOblique && fontDescription.italic()
         && FcPatternGetInteger(pattern, FC_SLANT, 0, &actualFontSlant) == FcResultMatch) {
         syntheticOblique = actualFontSlant == FC_SLANT_ROMAN;
     }
@@ -360,7 +360,7 @@ static inline bool isCommonlyUsedGenericFamily(const String& familyNameString)
         || equalLettersIgnoringASCIICase(familyNameString, "cursive"_s);
 }
 
-std::unique_ptr<FontPlatformData> FontCache::createFontPlatformData(const FontDescription& fontDescription, const AtomString& family, const FontCreationContext& fontCreationContext)
+std::unique_ptr<FontPlatformData> FontCache::createFontPlatformData(const FontDescription& fontDescription, const AtomString& family, const FontCreationContext& fontCreationContext, OptionSet<FontLookupOptions> options)
 {
     // The CSS font matching algorithm (http://www.w3.org/TR/css3-fonts/#font-matching-algorithm)
     // says that we must find an exact match for font family, slant (italic or oblique can be used)
